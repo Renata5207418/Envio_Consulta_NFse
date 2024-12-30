@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status NFS-e</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #413D3A;
+            align-items: center;
+            height: 90px;
+            padding: 0 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        header .header-logo {
+            max-height: 75px;
+            height: auto;
+            margin-left: 50px;
+            justify-content: center;
+        }
+
+        .sidebar {
+            width: 45px;
+            background-color: #FBBA00;
+            color: #fff;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            padding: 0;
+            transition: width 0.3s;
+            white-space: nowrap;
+            z-index: 2000;
+            box-shadow: 3px 0px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: 250px;
+        }
+
+        .menu-lateral {
+            margin-top: 0;
+            padding: 0;
+        }
+
+        .menu-lateral a {
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        .menu-lateral a img.icone-menu {
+            width: 29px;
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            margin-left: 60px;
+            padding: 20px;
+            width: calc(97% - 60px);
+            margin-top: 70px;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 40px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #FBBA00;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        .consulta-result {
+            white-space: pre-wrap;
+        }
+
+        .postit-container {
+            margin-top: 60px;
+            max-width: 400px;
+            padding: 20px;
+            background-color: #F9F9F9;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .alert {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        #status-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #processed-data_wrapper {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        table.dataTable {
+            width: 100%;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            table-layout: auto;
+        }
+
+        table.dataTable thead th {
+            text-align: center;
+            position: sticky;
+            top: 0;
+            background-color: #FBBA00;
+            z-index: 1;
+        }
+
+        table.dataTable tbody td {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dataTables_scrollHeadInner {
+            width: 100% !important;
+        }
+
+        .dataTables_scrollBody {
+            overflow-x: auto !important;
+        }
+             .file-input-label:hover,
+        .upload-container button:hover,
+        .btn-upload:hover,
+        .btn-consultar:hover {
+            background-color: gray;
+            color: white;
+            transition: 0.5s all ease;
+        }
+
+    </style>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='images/logosc.png') }}" alt="Logo" class="header-logo">
+        <span class="header-title"></span>
+    </header>
+    <br>
+    <aside class="sidebar menu-lateral">
+        <div class="menu-lateral">
+            <a href="/"><img src="{{ url_for('static', filename='images/usua.png') }}" alt="Ícone 1" class="icone-menu"><span class="menu-item-text">Página Inicial</span></a>
+            <a href="/status"><img src="{{ url_for('static', filename='images/status.png') }}" alt="Ícone 5" class="icone-menu"><span class="menu-item-text">Consultar Status</span></a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div id="status-section">
+            <div id="status-message" class="alert"></div>
+            <div id="processed-data_wrapper">
+                <table id="processed-data" class="display">
+                    <thead>
+                        <tr>
+                            <th>Número RPS</th>
+                            <th>CNPJ</th>
+                            <th>Razão Social</th>
+                            <th>Logradouro</th>
+                            <th>Número</th>
+                            <th>Município</th>
+                            <th>UF</th>
+                            <th>CEP</th>
+                            <th>Bairro</th>
+                            <th>Valor</th>
+                            <th>Descrição</th>
+                            <th>Protocolo</th>
+                            <th>Status Verificação</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="total-notas"></div>
+            <button id="export-button" class="btn-upload">Exportar para Excel</button>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.11.5/api/fnReloadAjax.js"></script>
+    <script>
+        $(document).ready(function() {
+            var table = $('#processed-data').DataTable({
+                "scrollX": true,
+                "scrollY": "400px",
+                "scrollCollapse": true,
+                "paging": false,
+                "autoWidth": false,
+                "ordering": true,
+                "columnDefs": [
+                    {
+                        "targets": '_all',
+                        "className": 'dt-center'
+                    }
+                ]
+            });
+
+            updateStatusTable(table);
+        });
+
+        function showStatusMessage(message, isError = false) {
+            const statusMessage = document.getElementById('status-message');
+            if (statusMessage) {
+                statusMessage.textContent = message;
+                statusMessage.style.display = 'block';
+                statusMessage.className = isError ? 'alert alert-danger' : 'alert alert-success';
+            } else {
+                console.error('Elemento de mensagem de status não encontrado.');
+            }
+        }
+
+        function updateStatusTable(table) {
+            fetch('/status_data')
+                .then(response => {
+                    if (!response.ok) throw new Error('Erro na rede');
+                    return response.json();
+                })
+                .then(data => {
+                    table.clear().draw();
+                    data.forEach(item => {
+                        table.row.add([
+                            item[0], item[1], item[2], item[3], item[4], item[5],
+                            item[6], item[7], item[8], item[9], item[10], item[11],
+                            item[12]
+                        ]).draw(false);
+                    });
+
+                    const totalNotas = data.length;
+                    document.getElementById('total-notas').textContent = `Total de Notas Geradas: ${totalNotas}`;
+                })
+                .catch(error => {
+                    showStatusMessage('Erro ao carregar status: ' + error.message, true);
+                });
+        }
+
+        document.getElementById('export-button').addEventListener('click', function() {
+            window.location.href = '/export';
+        });
+
+        function logout() {
+            console.log('Logout');
+        }
+    </script>
+</body>
+</html>

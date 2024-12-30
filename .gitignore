@@ -1,0 +1,45 @@
+# Ignorar arquivos temporários do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignorar arquivos e pastas do Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+*.venv
+*.log
+
+# Ignorar pacotes e configurações locais do ambiente virtual
+venv/
+.env
+.env.*
+
+# Arquivos de cache e logs
+*.log
+logs/
+debug.log
+soap_debug.log
+
+# Arquivos gerados automaticamente
+*.sqlite3
+*.db
+*.bak
+*.xml
+
+# Arquivos de configuração específicos do editor
+.vscode/
+.idea/
+*.iml
+
+# Arquivos de dependências e instalação
+Pipfile
+Pipfile.lock
+*.egg-info/
+dist/
+build/
+
+# Ignorar arquivos de saída temporários
+output/
+uploads/

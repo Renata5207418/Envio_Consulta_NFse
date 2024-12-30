@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envio NFS-e</title>
+    <link rel="stylesheet" href="static/css/styles.css">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #413D3A;
+            align-items: center;
+            height: 90px;
+            padding: 0 20px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        header .header-logo {
+            max-height: 75px;
+            height: auto;
+            margin-left: 50px;
+            justify-content: center;
+        }
+
+        .sidebar {
+            width: 45px;
+            background-color: #FBBA00;
+            color: #fff;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            padding: 0;
+            transition: width 0.3s;
+            white-space: nowrap;
+            z-index: 2000;
+            box-shadow: 3px 0px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .sidebar:hover {
+            width: 250px;
+        }
+
+        .menu-lateral {
+            margin-top: 0;
+            padding: 0;
+        }
+
+        .menu-lateral a {
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        .menu-lateral a img.icone-menu {
+            width: 29px;
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            margin-left: 60px;
+            padding: 20px;
+            width: calc(100% - 60px);
+            margin-top: 70px;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+        .upload-container button,
+        .upload-container .file-input-label,
+        .postit-container .file-input-label,
+        .postit-container .btn-upload,
+        .postit-container .btn-consultar {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #FBBA00;
+            color: black;
+        }
+
+        .file-input-label, .btn-upload, .btn-consultar {
+            display: inline-block;
+        }
+
+        .file-input-label:hover,
+        .upload-container button:hover,
+        .btn-upload:hover,
+        .btn-consultar:hover {
+            background-color: gray;
+            color: white;
+            transition: 0.5s all ease;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-count {
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .consulta-result {
+            white-space: pre-wrap;
+        }
+
+        .postit-container {
+            margin-top: 60px;
+            max-width: 400px;
+            padding: 30px;
+            background-color: #F9F9F9;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .alert {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='images/logosc.png') }}" alt="Logo" class="header-logo">
+        <span class="header-title"></span>
+    </header>
+
+    <aside class="sidebar menu-lateral">
+        <div class="menu-lateral">
+            <a><img src="{{ url_for('static', filename='images/usua.png') }}" alt="Ícone 1" class="icone-menu"><span class="menu-item-text">Página Inicial</span></a>
+            <a href="#" id="toggle-consulta"><img src="{{ url_for('static', filename='images/status.png') }}" alt="Ícone 5" class="icone-menu"><span class="menu-item-text">Consultar Status</span></a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="postit-container">
+            <div id="status-message" class="alert"></div>
+
+                <!-- Lembrete Adicionado -->
+            <div class="reminder">
+                <p><strong>Formatação da Planilha:</strong></p>
+                <ul>
+                    <li>Separe as empresas em abas nomeadas com <strong>letras minúsculas</strong>.</li>
+                    <li>Insira uma coluna com o <strong>RPS</strong> e preencha apenas a <strong>primeira linha</strong> (verificar último no ISS).</li>
+                </ul>
+            </div>
+
+            <label for="file-input" class="file-input-label">Escolher Arquivos</label>
+            <input id="file-input" type="file" name="file" multiple class="file-input">
+            <button id="btn-upload" type="button" class="btn-upload">Enviar</button>
+            <button id="btn-clear" type="button" class="btn-upload">Limpar</button>
+            <br>
+            <span class="file-count">Nenhum arquivo selecionado</span>
+        </div>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('file-input').addEventListener('change', function(event) {
+            const fileCount = event.target.files.length;
+            document.querySelector('.file-count').textContent = `${fileCount} arquivos selecionados`;
+        });
+
+        function showStatusMessage(message, isError = false) {
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.textContent = message;
+            statusMessage.style.display = 'block';
+            statusMessage.className = isError ? 'alert alert-danger' : 'alert alert-success';
+        }
+
+        document.getElementById('btn-upload').addEventListener('click', function() {
+            const fileInput = document.getElementById('file-input');
+            const files = fileInput.files;
+
+            if (files.length === 0) {
+                showStatusMessage('Nenhum arquivo selecionado.', true);
+                return;
+            }
+
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append('file', file);
+            }
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erro na rede');
+                return response.text();
+            })
+            .then(data => {
+                showStatusMessage('Arquivos enviados e processados com sucesso!');
+            })
+            .catch(error => {
+                showStatusMessage('Erro ao enviar arquivos: ' + error.message, true);
+            });
+        });
+
+         document.getElementById('toggle-consulta').addEventListener('click', function() {
+             window.location.href = '/status';
+        });
+
+
+        document.getElementById('btn-clear').addEventListener('click', function() {
+            const fileInput = document.getElementById('file-input');
+            fileInput.value = '';
+            document.querySelector('.file-count').textContent = 'Nenhum arquivo selecionado';
+        });
+
+    </script>
+</body>
+</html>
